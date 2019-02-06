@@ -93,6 +93,8 @@ When an app consists of multiple functions, these can be deployed in a single op
 
 Configuration values can also be specified at the level of an application, and thus applied to all of the functions in the app, as opposed to setting the values for the individual functions.
 
+To understand how to use apps to group functions, work through [this example](http://fnproject.io/tutorials/Apps/).
+
 ## <a name="orchestrate"/> Orchestration with Flow
 
 As you've seen, applications can be used to organise function code, deployment and configuration.
@@ -105,22 +107,24 @@ Flow uses a promises style API written in a normal programming language (rather 
 
 This API is currently only implemented in Java but other are implementations on the way.
 
-The first two flow examples are:
+The first two flow examples you should work through are:
 - [Flow 101](http://fnproject.io/tutorials/Flow101/)
 - [Flow 102](http://fnproject.io/tutorials/Flow102/)
-
 
 The functions invoked by the flow can be written in any language that you choose.
 
 Since the flow function is written in code, you could put embed other operations into it, but the best advice is to take a "separation of concerns" approach and to use the flow purely for orchestration, and deliver the business functionality via the invoked functions.
 
+One way of thinking about this is to use an analogy with theatre.  The **functions** required for the play might be things like `add_character`, `move_character` etc. while the **flow** that combines these functions to deliver the play is the **script**.
+
+You can see how this approach could be used to adapt Shakespeare's comedy ___As You Like It___ for the serverless world [here](https://bitbucket.org/ewan_slater/comedy/src).
+
+The flow (or script) is implemented by the function `as_you_like_it`.  If you inspect the source code for the class `AsYouLikeIt.java` you will see that the flow (or *script*) adds various characters to the stage, causes them to variously fall in love, wrestle, run away, and disguise themselves, causing much confusion to the characters and (hopefully) amusement for the audience.
+
+It finishes with all the main characters getting married (phew!).
+
+One limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
+
+The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke. 
+
 ## <a name="saga"/> Implement a Saga with Fn and Flow 
-
-## Beyond Hello World
-Once you've got your Hello World! function running let's see how Fn can group multiple functions together to create an application (OK, this is a *very* simple application, it just responds to requests on two different url's).
-
-One interesting point here is that the functions are in multiple languages, but because of the runtime compartmentalisation the Fn server provides they still run happily together as a single app.
-
-If you want to explore more have a look at the various [FDK's (Function Developer Kit)](https://github.com/fnproject).
-
-There is a range of examples, for example [generating QR codes](https://github.com/fnproject/fdk-java/tree/master/examples/qr-code).
