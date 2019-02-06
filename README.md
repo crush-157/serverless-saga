@@ -125,6 +125,6 @@ It finishes with all the main characters getting married (phew!).
 
 One limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
 
-The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke. 
+The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke from the flow.
 
 ## <a name="saga"/> Implement a Saga with Fn and Flow 
