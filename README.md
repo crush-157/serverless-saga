@@ -7,10 +7,10 @@ You're going to build this using [Fn](https://fnproject.io/), an open source, co
 ## Agenda
 1.  [Introduction to Fn](#introduction)
 2.  [Install Fn](#install)
-3.  [Create your first function](#create-your-first-function")
-4.  Group functions together in apps
-5.  Orchestration with Flow
-6.  Implement a Saga with Fn and Flow
+3.  [Creating functions](#create)
+4.  [Group functions together in apps](#group)
+5.  [Orchestration with Flow](#orchestrate)
+6.  [Implement a Saga with Fn and Flow](#saga)
 
 ## Pre - requisites
 This workshop requires a Docker environment running on Linux (or Mac).
@@ -47,11 +47,11 @@ If having started the server you decide to move it to the background you can sto
 
 If you do start the server in the background be sure to have it running when you start configuring the context.
 
-As we're using the script to setup Fn you can skip the "Fn Manual Install" section
+As we're using the script to setup Fn you can skip the "Fn Manual Install" section.
 
 Once you've got your Fn server up and running, you should be ready to create your first function.
 
-## <a name="create-your-first-function"/> Create your first function
+## <a name="create"/> Creating functions
 Fn uses Docker containers as function primitives.  This means that you can write functions in any language that can run in a Docker container.  You can even run a shell script as a function if you like.
 
 However the easiest way to create a function is with the help of an FDK (Function Development Kit).  The FDK takes care of:
@@ -64,6 +64,7 @@ The last part is necessary because Fn functions are "hot" - once the function ha
 
 If you don't use an FDK, you need to take care of these yourself.
 
+### Using an FDK
 To create a function using one of the FDKs, click on the link below to go to a tutorial for the language of your choice:
 
 - [Go](http://fnproject.io/tutorials/Introduction/)
@@ -74,6 +75,46 @@ To create a function using one of the FDKs, click on the link below to go to a t
 
 If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can be include functions written in any number of languages.  
 
+### From a Docker image (optional)
+You can also [create a function using a Docker image](http://fnproject.io/tutorials/ContainerAsFunction/).
+
+### Using HotWrap (optional, *warning - experimental feature!!!*)
+HotWrap is an experimental tool that enable you to turn any shell command into a function.  It is essentially and FDK that sends incoming events to your command as STDIN and reads the output on STDOUT.
+
+If you're interested you can try it out [here](https://github.com/fnproject/hotwrap) (but again, it is experimental).
+
+## <a name="group"/> Group functions together in applications (apps)
+
+An Fn function is always deployed as part of an `application`.  When you deploy even a single function you do this within an application.
+
+When you list deployed functions you do this by application e.g. `fn list functions myapp`.
+
+When an app consists of multiple functions, these can be deployed in a single operation, rather than individually.
+
+Configuration values can also be specified at the level of an application, and thus applied to all of the functions in the app, as opposed to setting the values for the individual functions.
+
+## <a name="orchestrate"/> Orchestration with Flow
+
+As you've seen, applications can be used to organise function code, deployment and configuration.
+
+In the vast majority of cases, performing useful work for a user will require multiple functions to be invoked.  These invocations will typically need to be coordinated to make sure that they happen in the correct sequence.  In other words you need to manage the application workflow.
+
+Fn uses [Flow](https://github.com/fnproject/flow) as it's orchestration mechanism to manage the application workflow across multiple functions.
+
+Flow uses a promises style API written in a normal programming language (rather than an XML or YAML dialect) to define workflows (each called a flow).
+
+This API is currently only implemented in Java but other are implementations on the way.
+
+The first two flow examples are:
+- [Flow 101](http://fnproject.io/tutorials/Flow101/)
+- [Flow 102](http://fnproject.io/tutorials/Flow102/)
+
+
+The functions invoked by the flow can be written in any language that you choose.
+
+Since the flow function is written in code, you could put embed other operations into it, but the best advice is to take a "separation of concerns" approach and to use the flow purely for orchestration, and deliver the business functionality via the invoked functions.
+
+## <a name="saga"/> Implement a Saga with Fn and Flow 
 
 ## Beyond Hello World
 Once you've got your Hello World! function running let's see how Fn can group multiple functions together to create an application (OK, this is a *very* simple application, it just responds to requests on two different url's).
