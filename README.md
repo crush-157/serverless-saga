@@ -127,4 +127,20 @@ One limitation that we currently have with Flow is that we need to invoke the fu
 
 The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke from the flow.
 
-## <a name="saga"/> Implement a Saga with Fn and Flow 
+## <a name="saga"/> Implement a Saga with Fn and Flow
+
+Sadly in the real world, things rarely run so smoothly.  Often we need to execute transactions which span multiple systems which we don't own or control.
+
+The classic approach to dealing with with such distributed transactions was to use a two - phase commit (2PC) protocol and some kind of Transaction Manager (e.g. Tuxedo) to coordinate commit and rollback operations.
+
+However, this approach typically impacts performance, does not scale well and requires the participating systems too support the protocol.
+
+In many cases today we are likely to be dealing with systems which we do not control and which do not support a two phase commit protocol.
+
+The **[Saga Pattern](https://microservices.io/patterns/data/saga.html)** describes how to implement reliable _business transactions_ across multiple systems in situations where a 2PC approach is not appropriate.
+
+The overall business transaction is the "saga".  The saga is implemented as a set of individual (system - level) transactions.  If any of these steps fail then rather than _rolling back_ the transactions in the other systems (which effectively means they have never happened), a _compensating transaction_ is applied.
+
+So for example if part of the saga involves debiting a customer's bank account, the compensating transaction will credit the bank account by the same amount.  The customer will see both the credit and the debit transactions on their bank statement.  This is different to a _rollback_ where the customer would not see either transaction.
+
+Flow allows us to implement the saga pattern using Fn functions:  https://github.com/fnproject/tutorials/tree/master/FlowSaga
