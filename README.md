@@ -24,8 +24,6 @@ The assumption is that you have one of...
 
 ## <a name="introduction"/> Introduction to Fn
 
-![](images/dalek.pdf)
-
 ![](images/dalek.jpg)
 
 ## <a name="install"/> Install Fn
