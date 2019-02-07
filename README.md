@@ -27,7 +27,11 @@ The assumption is that you have one of...
 ### Overview
 [Fn](https://fnproject.io) is an open - source, container-native serverless platform.
 
-The core written in Go, but Fn supports functions written in any language.
+The core is written in Go, but Fn supports functions written in any language (as long as it runs in a Docker container).
+
+Licensed under the Apache License 2.0.
+
+Code available on [GitHub](https://github.com/fnproject).
 
 ![](images/slides/fn-project.png)
 
@@ -97,8 +101,6 @@ We can invoke a function either by
 - HTTP request to
   - trigger URL
   - default endpoint URL
-
-### Architecture
 
 ![](images/slides/architecture.png)
 
