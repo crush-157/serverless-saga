@@ -93,7 +93,7 @@ The fn CLI is your friend ;-)
 ![](images/slides/triggers.png)
 
 We can invoke a function either by
-- using the CLI `fn invoke my-app my-function`
+- using the CLI (e.g. `fn invoke my-app my-function`)
 - HTTP request to
   - trigger URL
   - default endpoint URL
@@ -104,7 +104,8 @@ We can invoke a function either by
 
 ![](images/slides/fn-server.png)
 
-![](images/request-process.png)
+### Request Processing
+![](images/slides/request-process.png)
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
