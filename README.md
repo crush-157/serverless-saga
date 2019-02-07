@@ -24,7 +24,7 @@ The assumption is that you have one of...
 
 ## <a name="introduction"/> Introduction to Fn
 
-![](images/dalek.jpg)
+![](images/dalek.pdf)
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
