@@ -8,9 +8,12 @@ You're going to build this using [Fn](https://fnproject.io/), an open source, co
 1.  [Introduction to Fn](#introduction)
 2.  [Install Fn](#install)
 3.  [Creating functions](#create)
-4.  [Group functions together in apps](#group)
-5.  [Orchestration with Flow](#orchestrate)
-6.  [Implement a Saga with Fn and Flow](#saga)
+4.  [Logging and Troubleshooting](#log)
+5.  [Group functions together in apps](#group)
+6.  [Orchestration with Flow](#orchestrate)
+7.  [Implement a Saga with Fn and Flow](#saga)
+
+---
 
 ## Pre - requisites
 This workshop requires a Docker environment running on Linux (or Mac).
@@ -21,6 +24,8 @@ The assumption is that you have one of...
 - Linux VM on Windows
 
 ...with Docker installed
+
+---
 
 ## <a name="introduction"/> Introduction to Fn
 
@@ -88,9 +93,18 @@ A function is deployed using the Fn CLI:
 
 `fn deploy --app my-app`
 
+
+_Note:_
+
+_Due to a recent change to the CLI, you need to create your app __before__ you can deploy to it.  The tutorials may not have all caught up yet!:_
+
+`fn create app my-app`
+
 ![](images/slides/fn-deploy.png)
 
 The fn CLI is your friend ;-)
+
+To get help, follow the usual pattern of "stick the `--help` flag after your command", e.g. `fn --help` or `fn list --help`
 
 ![](images/slides/endpoints.png)
 
@@ -108,6 +122,8 @@ We can invoke a function either by
 
 ### Request Processing
 ![](images/slides/request-process.png)
+
+---
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
@@ -168,6 +184,33 @@ HotWrap is an experimental tool that enable you to turn any shell command into a
 
 If you're interested you can try it out [here](https://github.com/fnproject/hotwrap) (but again, it is experimental).
 
+---
+
+## <a name="log"/> Logging and Troubleshooting
+
+When something goes wrong you want to know about it.
+
+To get more detail on what happens when you run an fn command, use the `--verbose` flag, e.g. `fn --verbose build`
+
+Once your function is deployed, if it throws an exception, this will be written to STDERR by the FDK and then to syslog by the Fn server.
+
+By the same token, if your function writes to STDERR this will be written to the log.
+
+To collect and view the logs you need to configure a syslog URL for your app.
+
+You can do this either
+- for a new app:
+
+  `fn create app kraftwerk --syslog-url tcp://logs7.papertrailapp.com:11125`
+
+- or an existing app:
+
+  `fn update app bauhaus --syslog-url tcp://logs7.papertrailapp.com:11125`
+
+See the [troubleshooting tutorial](http://fnproject.io/tutorials/Troubleshooting/) for a more detailed description of how to set up logging.
+
+---
+
 ## <a name="group"/> Group functions together in applications (apps)
 
 An Fn function is always deployed as part of an `application`.  When you deploy even a single function you do this within an application.
@@ -178,7 +221,10 @@ When an app consists of multiple functions, these can be deployed in a single op
 
 Configuration values can also be specified at the level of an application, and thus applied to all of the functions in the app, as opposed to setting the values for the individual functions.
 
+
 To understand how to use apps to group functions, work through [this example](http://fnproject.io/tutorials/Apps/).
+
+---
 
 ## <a name="orchestrate"/> Orchestration with Flow
 
@@ -211,6 +257,8 @@ It finishes with all the main characters getting married (phew!).
 One limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
 
 The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke from the flow.
+
+---
 
 ## <a name="saga"/> Implement a Saga with Fn and Flow
 
