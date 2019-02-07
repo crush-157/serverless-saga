@@ -93,13 +93,17 @@ A __function__ is deployed to an __app__ using the Fn CLI:
 
 _Note:_
 
-_Due to a recent change to the CLI, you need to create your app __before__ you can deploy to it.  The tutorials may not have all caught up yet!:_
+_Due to a recent change to the CLI, you need to create your app __before__ you can deploy to it, or __explicitly__ tell fn to create it as part of the deploy command.  The tutorials may not have all caught up yet!:_
 
-To create the app:
+To create the app beforehand:
 
 `fn create app my-app`
 
-To deploy the function:
+To create it on deploy:
+
+`fn deploy --create-app --app my-app`
+
+To deploy a function to a pre-existing app:
 
 `fn deploy --app my-app`
 
