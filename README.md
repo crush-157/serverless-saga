@@ -24,7 +24,6 @@ The assumption is that you have one of...
 
 ## <a name="introduction"/> Introduction to Fn
 
-<<<<<<< HEAD
 [Fn](https://fnproject.io) is an open - source, container-native serverless platform.
 
 Core written in Go, but supports functions written in any language.
@@ -36,10 +35,6 @@ Core written in Go, but supports functions written in any language.
 ![](images/slides/an-fn-function.png)
 
 ![](images/slides/fn-deploy.png)
-
-=======
-![](images/dalek.jpg)
->>>>>>> 2353ef4a704cdb36fd89825f318c1370c7c792a6
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
