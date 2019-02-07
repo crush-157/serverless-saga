@@ -24,9 +24,10 @@ The assumption is that you have one of...
 
 ## <a name="introduction"/> Introduction to Fn
 
+### Overview
 [Fn](https://fnproject.io) is an open - source, container-native serverless platform.
 
-Core written in Go, but supports functions written in any language.
+The core written in Go, but Fn supports functions written in any language.
 
 ![](images/slides/fn-project.png)
 
@@ -34,7 +35,76 @@ Core written in Go, but supports functions written in any language.
 
 ![](images/slides/an-fn-function.png)
 
+#### Hello World functions:
+
+##### Java
+
+```
+package com.example.fn;
+
+public class HelloFunction {
+
+    public String handleRequest(String input) {
+        String name = (input == null || input.isEmpty()) ? "world"  : input;
+
+        return "Hello, " + name + "!";
+    }
+
+}
+```
+
+##### Ruby (func.rb)
+```
+require 'fdk'
+
+def myfunction(context:, input:)
+  input_value = input.respond_to?(:fetch) ? input.fetch('name') : input
+  name = input_value.to_s.strip.empty? ? 'World' : input_value
+  { message: "Hello #{name}!" }
+end
+
+FDK.handle(target: :myfunction)
+```
+
+##### Function Metadata (func.yaml):
+```
+schema_version: 20180708
+name: hello
+version: 0.0.1
+runtime: ruby
+entrypoint: ruby func.rb
+format: http-stream
+triggers:
+- name: hello
+  type: http
+  source: /hello
+```
+
+A function is deployed using the Fn CLI:
+
+`fn deploy --app my-app`
+
 ![](images/slides/fn-deploy.png)
+
+The fn CLI is your friend ;-)
+
+![](images/slides/endpoints.png)
+
+![](images/slides/triggers.png)
+
+We can invoke a function either by
+- using the CLI `fn invoke my-app my-function`
+- HTTP request to
+  - trigger URL
+  - default endpoint URL
+
+### Architecture
+
+![](images/slides/architecture.png)
+
+![](images/slides/fn-server.png)
+
+![](images/request-process.png)
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
