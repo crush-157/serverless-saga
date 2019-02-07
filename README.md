@@ -89,16 +89,19 @@ triggers:
   source: /hello
 ```
 
-A function is deployed using the Fn CLI:
-
-`fn deploy --app my-app`
-
+A __function__ is deployed to an __app__ using the Fn CLI:
 
 _Note:_
 
 _Due to a recent change to the CLI, you need to create your app __before__ you can deploy to it.  The tutorials may not have all caught up yet!:_
 
+To create the app:
+
 `fn create app my-app`
+
+To deploy the function:
+
+`fn deploy --app my-app`
 
 ![](images/slides/fn-deploy.png)
 
@@ -176,7 +179,7 @@ To create a function using one of the FDKs, click on the link below to go to a t
 - [Python](http://fnproject.io/tutorials/python/intro/)
 - [Ruby](http://fnproject.io/tutorials/ruby/intro/)
 
-If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can be include functions written in any number of languages.  
+If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can include functions written in any number of languages.  
 
 ### From a Docker image (optional)
 You can also [create a function using a Docker image](http://fnproject.io/tutorials/ContainerAsFunction/).
