@@ -152,6 +152,8 @@ As we're using the script to setup Fn you can skip the "Fn Manual Install" secti
 
 Once you've got your Fn server up and running, you should be ready to create your first function.
 
+---
+
 ## <a name="create"/> Creating functions
 Fn uses Docker containers as function primitives.  This means that you can write functions in any language that can run in a Docker container.  You can even run a shell script as a function if you like.
 
