@@ -51,7 +51,7 @@ and test it.
 
 You will need to use two ssh sessions here, one to run the server, the other to interact with it.
 
-If you prefer you can run the server in the background by using the -d flag:
+Or, if you prefer, you can run the server in the background by using the -d flag:
 
 `fn start -d`.
 
@@ -77,6 +77,8 @@ However the easiest way to create a function is with the help of an FDK (Functio
 The last part is necessary because Fn functions are "hot" - once the function has executed, the container runs for a short (configurable) time and can be reused if the function is invoked again during that time.
 
 If you don't use an FDK, you need to take care of these yourself.
+
+Another point to note is that functions (and their containers) are _ephemeral_.  You shouldn't try to store any state within a function.  If you need to persist data, your function should write that to an external store of some kind.
 
 ### Using an FDK
 To create a function using one of the FDKs, click on the link below to go to a tutorial for the language of your choice:
@@ -121,13 +123,11 @@ Flow uses a promises style API written in a normal programming language (rather 
 
 This API is currently only implemented in Java but other are implementations on the way.
 
-The first two flow examples you should work through are:
-- [Flow 101](http://fnproject.io/tutorials/Flow101/)
-- [Flow 102](http://fnproject.io/tutorials/Flow102/)
+Work through [Flow 101](http://fnproject.io/tutorials/Flow101/) to see a first example.
 
-The functions invoked by the flow can be written in any language that you choose.
+Since the flow function is written in code, you could just write this function and inline all your other operations into it, but that's probably (almost certainly) not the best idea.
 
-Since the flow function is written in code, you could put embed other operations into it, but the best advice is to take a "separation of concerns" approach and to use the flow purely for orchestration, and deliver the business functionality via the invoked functions.
+The best advice is to take a "separation of concerns" approach and to use the flow purely for orchestration, and deliver the business functionality via the invoked functions.
 
 One way of thinking about this is to use an analogy with theatre.  The **functions** required for the play might be things like `add_character`, `move_character` etc. while the **flow** that combines these functions to deliver the play is the **script**.
 
@@ -135,11 +135,28 @@ You can see how this approach could be used to adapt Shakespeare's comedy ___As 
 
 The flow (or script) is implemented by the function `as_you_like_it`.  If you inspect the source code for the class `AsYouLikeIt.java` you will see that the flow (or *script*) adds various characters to the stage, causes them to variously fall in love, wrestle, run away, and disguise themselves, causing much confusion to the characters and (hopefully) amusement for the audience.
 
+The states of the various characters are persisted to Redis which acts as the "stage" (to stretch the theatrical analogy a bit further).
+
 It finishes with all the main characters getting married (phew!).
+
+Note that while the Flow is written in Java, the functions invoked by the flow can be written in any language that you choose (in this case Ruby).
 
 One limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
 
 The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke from the flow.
+
+The key things to remember with Flow are:
+- include the Flow library in your dependencies (pom.xml or equivalent)
+- make sure
+  - Fn server is running
+  - Flow server is running (with API_URL pointing to the Fn server)
+  - the function or app that uses Flow has COMPLETER_BASE_URL configured to point to the Flow server
+
+The As You Like It example includes scripts to:
+1.  [Start Flow](https://bitbucket.org/ewan_slater/comedy/src/3b095b03086c85b78c5f1556be9430a0150f8db4/start_flow.sh?at=master)
+2.  [Configure the application]() with the function ids and the COMPLETER_BASE_URL
+
+You will also need to run Redis and configure the REDIS_IP for the application.
 
 ## <a name="saga"/> Implement a Saga with Fn and Flow
 
@@ -157,4 +174,6 @@ The overall business transaction is the "saga".  The saga is implemented as a se
 
 So for example if part of the saga involves debiting a customer's bank account, the compensating transaction will credit the bank account by the same amount.  The customer will see both the credit and the debit transactions on their bank statement.  This is different to a _rollback_ where the customer would not see either transaction.
 
-Flow allows us to implement the saga pattern using Fn functions:  https://github.com/fnproject/tutorials/tree/master/FlowSaga
+Flow allows us to implement the saga pattern using Fn functions: https://github.com/fnproject/tutorials/tree/master/FlowSaga
+
+Once you've worked through this example, you could have a go at creating a saga of your own!
