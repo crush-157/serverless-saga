@@ -8,9 +8,12 @@ You're going to build this using [Fn](https://fnproject.io/), an open source, co
 1.  [Introduction to Fn](#introduction)
 2.  [Install Fn](#install)
 3.  [Creating functions](#create)
-4.  [Group functions together in apps](#group)
-5.  [Orchestration with Flow](#orchestrate)
-6.  [Implement a Saga with Fn and Flow](#saga)
+4.  [Logging and Troubleshooting](#log)
+5.  [Group functions together in apps](#group)
+6.  [Orchestration with Flow](#orchestrate)
+7.  [Implement a Saga with Fn and Flow](#saga)
+
+---
 
 ## Pre - requisites
 This workshop requires a Docker environment running on Linux (or Mac).
@@ -22,11 +25,18 @@ The assumption is that you have one of...
 
 ...with Docker installed
 
+---
+
 ## <a name="introduction"/> Introduction to Fn
 
+### Overview
 [Fn](https://fnproject.io) is an open - source, container-native serverless platform.
 
-Core written in Go, but supports functions written in any language.
+The core is written in Go, but Fn supports functions written in any language (as long as it runs in a Docker container).
+
+Licensed under the Apache License 2.0.
+
+Code available on [GitHub](https://github.com/fnproject).
 
 ![](images/slides/fn-project.png)
 
@@ -34,9 +44,93 @@ Core written in Go, but supports functions written in any language.
 
 ![](images/slides/an-fn-function.png)
 
+#### Hello World functions:
+
+##### Java
+
+```
+package com.example.fn;
+
+public class HelloFunction {
+
+    public String handleRequest(String input) {
+        String name = (input == null || input.isEmpty()) ? "world"  : input;
+
+        return "Hello, " + name + "!";
+    }
+
+}
+```
+
+##### Ruby (func.rb)
+```
+require 'fdk'
+
+def myfunction(context:, input:)
+  input_value = input.respond_to?(:fetch) ? input.fetch('name') : input
+  name = input_value.to_s.strip.empty? ? 'World' : input_value
+  { message: "Hello #{name}!" }
+end
+
+FDK.handle(target: :myfunction)
+```
+
+##### Function Metadata (func.yaml):
+```
+schema_version: 20180708
+name: hello
+version: 0.0.1
+runtime: ruby
+entrypoint: ruby func.rb
+format: http-stream
+triggers:
+- name: hello
+  type: http
+  source: /hello
+```
+
+A __function__ is deployed to an __app__ using the Fn CLI:
+
+_Note:_
+
+_Due to a recent change to the CLI, you need to create your app __before__ you can deploy to it, or __explicitly__ tell fn to create it as part of the deploy command.  The tutorials may not have all caught up yet!:_
+
+To create the app beforehand:
+
+`fn create app my-app`
+
+To create it on deploy:
+
+`fn deploy --create-app --app my-app`
+
+To deploy a function to a pre-existing app:
+
+`fn deploy --app my-app`
+
 ![](images/slides/fn-deploy.png)
 
+The fn CLI is your friend ;-)
 
+To get help, follow the usual pattern of "stick the `--help` flag after your command", e.g. `fn --help` or `fn list --help`
+
+![](images/slides/endpoints.png)
+
+![](images/slides/triggers.png)
+
+We can invoke a function either by
+- using the CLI (e.g. `fn invoke my-app my-function`)
+- HTTP request to
+  - trigger URL
+  - default endpoint URL
+
+![](images/slides/architecture.png)
+
+![](images/slides/fn-server.png)
+
+### Request Processing
+![](images/slides/request-process.png)
+
+---
 
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
@@ -65,6 +159,8 @@ As we're using the script to setup Fn you can skip the "Fn Manual Install" secti
 
 Once you've got your Fn server up and running, you should be ready to create your first function.
 
+---
+
 ## <a name="create"/> Creating functions
 Fn uses Docker containers as function primitives.  This means that you can write functions in any language that can run in a Docker container.  You can even run a shell script as a function if you like.
 
@@ -89,7 +185,7 @@ To create a function using one of the FDKs, click on the link below to go to a t
 - [Python](http://fnproject.io/tutorials/python/intro/)
 - [Ruby](http://fnproject.io/tutorials/ruby/intro/)
 
-If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can be include functions written in any number of languages.  
+If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can include functions written in any number of languages.  
 
 ### From a Docker image (optional)
 You can also [create a function using a Docker image](http://fnproject.io/tutorials/ContainerAsFunction/).
@@ -98,6 +194,33 @@ You can also [create a function using a Docker image](http://fnproject.io/tutori
 HotWrap is an experimental tool that enable you to turn any shell command into a function.  It is essentially and FDK that sends incoming events to your command as STDIN and reads the output on STDOUT.
 
 If you're interested you can try it out [here](https://github.com/fnproject/hotwrap) (but again, it is experimental).
+
+---
+
+## <a name="log"/> Logging and Troubleshooting
+
+When something goes wrong you want to know about it.
+
+To get more detail on what happens when you run an fn command, use the `--verbose` flag, e.g. `fn --verbose build`
+
+Once your function is deployed, if it throws an exception, this will be written to STDERR by the FDK and then to syslog by the Fn server.
+
+By the same token, if your function writes to STDERR this will be written to the log.
+
+To collect and view the logs you need to configure a syslog URL for your app.
+
+You can do this either
+- for a new app:
+
+  `fn create app kraftwerk --syslog-url tcp://logs7.papertrailapp.com:11125`
+
+- or an existing app:
+
+  `fn update app bauhaus --syslog-url tcp://logs7.papertrailapp.com:11125`
+
+See the [troubleshooting tutorial](http://fnproject.io/tutorials/Troubleshooting/) for a more detailed description of how to set up logging.
+
+---
 
 ## <a name="group"/> Group functions together in applications (apps)
 
@@ -109,7 +232,10 @@ When an app consists of multiple functions, these can be deployed in a single op
 
 Configuration values can also be specified at the level of an application, and thus applied to all of the functions in the app, as opposed to setting the values for the individual functions.
 
+
 To understand how to use apps to group functions, work through [this example](http://fnproject.io/tutorials/Apps/).
+
+---
 
 ## <a name="orchestrate"/> Orchestration with Flow
 
@@ -158,6 +284,8 @@ The As You Like It example includes scripts to:
 
 You will also need to run Redis and configure the REDIS_IP for the application.
 
+---
+
 ## <a name="saga"/> Implement a Saga with Fn and Flow
 
 Sadly in the real world, things rarely run so smoothly.  Often we need to execute transactions which span multiple systems which we don't own or control.
@@ -174,6 +302,6 @@ The overall business transaction is the "saga".  The saga is implemented as a se
 
 So for example if part of the saga involves debiting a customer's bank account, the compensating transaction will credit the bank account by the same amount.  The customer will see both the credit and the debit transactions on their bank statement.  This is different to a _rollback_ where the customer would not see either transaction.
 
-Flow allows us to implement the saga pattern using Fn functions: https://github.com/fnproject/tutorials/tree/master/FlowSaga
+[Here](https://github.com/fnproject/tutorials/tree/master/FlowSaga) is an example of using Flow to implement a saga pattern using Fn functions.
 
 Once you've worked through this example, you could have a go at creating a saga of your own!
