@@ -255,6 +255,177 @@ Since the flow function is written in code, you could just write this function a
 
 The best advice is to take a "separation of concerns" approach and to use the flow purely for orchestration, and deliver the business functionality via the invoked functions.
 
+So you can deconstruct the flow function and delegate it's operations to other functions.
+
+Create a function to perform the doubling step:
+
+```
+fn init --runtime java --trigger http double-int
+```
+
+Then within the function directory, change the `cmd` in the `func.yaml`:
+
+```
+schema_version: 20180708
+name: double-int
+version: 0.0.9
+runtime: java
+build_image: fnproject/fn-java-fdk-build:jdk11-1.0.85
+run_image: fnproject/fn-java-fdk:jre11-1.0.85
+cmd: com.example.fn.DoubleInt::doubleInt
+format: http-stream
+triggers:
+- name: double-int-trigger
+  type: http
+  source: /double-int-trigger
+```
+
+Then create the following class:
+
+```
+package com.example.fn;
+
+public class DoubleInt {
+
+    public Integer doubleInt(Integer input) {
+        return (input * 2);
+    }
+
+}
+```
+
+Then deploy and test the function `double-int`.
+
+```
+echo 2 | fn invoke flow101 double-int`
+4
+```
+
+Now to call the function from the Flow, you will need the __ID__ of the deployed function which you can get from:
+
+```
+fn inspect function flow101 double-int
+```
+
+or
+
+
+```
+fn list function flow101
+```
+
+Then edit the code of simple-flow:
+
+```
+package com.example.fn;
+import com.fnproject.fn.api.flow.Flow;
+import com.fnproject.fn.api.flow.Flows;
+import com.fnproject.fn.runtime.flow.FlowFeature;
+import com.fnproject.fn.api.FnFeature;
+import com.fnproject.fn.api.flow.FlowFuture; //note - new import!
+
+import java.io.Serializable;
+
+@FnFeature(FlowFeature.class)
+public class HelloFunction implements Serializable {
+
+  public String handleRequest(int x) {
+    final String fnDoubleInt = "01D3H9RK8ZNG8G00GZJ000001M"; //function ID of double-int
+
+    Flow fl = Flows.currentFlow();
+
+    return fl.completedValue(x)
+      .thenApply( i -> {
+        FlowFuture<Integer> x = fl.invokeFunction(fnDoubleInt, i, Integer.class);
+        return x.get();
+      })
+      .thenApply( i -> "your number is: " + i + "\n")
+      .get();
+  }
+}
+
+```
+
+If you redeploy simple-flow now, it should give the same result, but now you are delegating the processing to other functions rather than coding them into the flow.
+
+You can also use your own types with FlowFuture<T>.
+
+So, for example, you could create a __Result__ class:
+
+```
+package com.example.fn;
+
+import java.io.Serializable;
+
+class Result implements Serializable {
+
+    private int value;
+
+    public Result(int value) {
+        this.value = value;
+    }
+
+    public Result() {
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+}
+```
+
+This could then be used by a new double-up function:
+```
+public class DoubleUp {
+
+    public Result doubleUp(Result input) {
+        return new Result(input.getValue() * 2);
+    }
+
+}
+```
+
+Then you can call double-up from the flow before (or after) the first double function:
+```
+package com.example.fn;
+import com.fnproject.fn.api.flow.Flow;
+import com.fnproject.fn.api.flow.Flows;
+import com.fnproject.fn.runtime.flow.FlowFeature;
+import com.fnproject.fn.api.FnFeature;
+import com.fnproject.fn.api.flow.FlowFuture; //note - new import!
+
+import java.io.Serializable;
+
+@FnFeature(FlowFeature.class)
+public class HelloFunction implements Serializable {
+
+  public String handleRequest(int input) {
+    final String fnDouble = "01D3H77X2DNG8G00GZJ000000F"; //function ID of double-up
+    final String fnDoubleInt = "01D3H9RK8ZNG8G00GZJ000001M"; //function ID of double-int
+
+    Flow fl = Flows.currentFlow();
+
+    return fl.completedValue(new Result(input))
+      .thenApply( i -> {
+        FlowFuture<Result> x = fl.invokeFunction(fnDouble, i, Result.class);
+        return x.get().getValue();
+      })
+      .thenApply( i -> {
+        FlowFuture<Integer> x = fl.invokeFunction(fnDoubleInt, i, Integer.class);
+        return x.get();
+      })
+      .thenApply( i -> "your number is: " + i + "\n")
+      .get();
+  }
+}
+```
+
+So you can use Flow to orchestrate the process, calling other functions to actually deliver the business functionality.
+
 One way of thinking about this is to use an analogy with theatre.  The **functions** required for the play might be things like `add_character`, `move_character` etc. while the **flow** that combines these functions to deliver the play is the **script**.
 
 You can see how this approach could be used to adapt Shakespeare's comedy ___As You Like It___ for the serverless world [here](https://bitbucket.org/ewan_slater/comedy/src).
@@ -267,7 +438,7 @@ It finishes with all the main characters getting married (phew!).
 
 Note that while the Flow is written in Java, the functions invoked by the flow can be written in any language that you choose (in this case Ruby).
 
-One limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
+As you saw previously, one limitation that we currently have with Flow is that we need to invoke the functions by ID (rather than their name) so once the application has been deployed it is necessary to run a script (`self_configure.sh`) to configure a key - value lookup for each of the function IDs.
 
 The `AsYouLikeIt` class then uses this to find the ID of the function it needs to invoke from the flow.
 
