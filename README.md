@@ -113,6 +113,10 @@ The fn CLI is your friend ;-)
 
 To get help, follow the usual pattern of "stick the `--help` flag after your command", e.g. `fn --help` or `fn list --help`
 
+The CLI also allows you to abbreviate some of the commands.
+
+For example, you can list contexts using either `fn list contexts` or `fn ls ctx`.  For clarity I have tried to stick to the long form of the commands throughout this workshop.
+
 ![](images/slides/endpoints.png)
 
 ![](images/slides/triggers.png)
@@ -135,7 +139,7 @@ We can invoke a function either by
 ## <a name="install"/> Install Fn
 To install Fn, we first install the CLI and then use that to "install" the server (which actually runs as a Docker container).
 
-To download and install the Fn CLI, follow these [instructions](http://fnproject.io/tutorials/install).
+To download and install the Fn CLI, follow these [instructions](http://fnproject.io/tutorials/install).  Please make sure that you **Configure your Context**, but you can skip the manual install (the script is easier and quicker).
 
 Then start the Fn server:
 
