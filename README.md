@@ -180,6 +180,11 @@ If you don't use an FDK, you need to take care of these yourself.
 
 Another point to note is that functions (and their containers) are _ephemeral_.  You shouldn't try to store any state within a function.  If you need to persist data, your function should write that to an external store of some kind.
 
+The code of the FDK's is available on 
+GitHub.
+
+For example you can look at the code of the [Ruby FDK](https://github.com/fnproject/fdk-ruby). 
+
 ### Using an FDK
 To create a function using one of the FDKs, click on the link below to go to a tutorial for the language of your choice:
 
