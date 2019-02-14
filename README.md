@@ -468,7 +468,7 @@ The key things to remember with Flow are:
 
 The As You Like It example includes scripts to:
 1.  [Start Flow](https://bitbucket.org/ewan_slater/comedy/src/3b095b03086c85b78c5f1556be9430a0150f8db4/start_flow.sh?at=master)
-2.  [Configure the application]() with the function ids and the COMPLETER_BASE_URL
+2.  [Configure the application](https://bitbucket.org/ewan_slater/comedy/src/3b095b03086c85b78c5f1556be9430a0150f8db4/self_configure.sh?at=master) with the function ids and the COMPLETER_BASE_URL
 
 You will also need to run Redis and configure the REDIS_IP for the application.
 
