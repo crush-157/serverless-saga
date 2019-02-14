@@ -196,8 +196,16 @@ To create a function using one of the FDKs, click on the link below to go to a t
 
 If you like you can try creating functions using multiple FDKs.  They all work the same way and since the functions are isolated, your applications can include functions written in any number of languages.  
 
-### From a Docker image (optional)
+### From a Docker image
 You can also [create a function using a Docker image](http://fnproject.io/tutorials/ContainerAsFunction/).
+
+_Note: Ignore the bit about copying a func.yaml file into the function directory!_
+
+Instead after you have created the `Dockerfile` for your function, run
+
+`fn init --trigger http`
+
+Fn will then create a `func.yaml` file for you.  By default, the function name will be the same as the directoy name.
 
 ### Using HotWrap (optional, *warning - experimental feature!!!*)
 HotWrap is an experimental tool that enable you to turn any shell command into a function.  It is essentially and FDK that sends incoming events to your command as STDIN and reads the output on STDOUT.
